@@ -1,7 +1,7 @@
 package LCC.CRON;
 
 import LCC.Logger.LogService;
-import LCC.ORM.Repository.QueueRepository;
+import LCC.Selenium.Check;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,25 +14,29 @@ public class QueueManager {
     @Autowired
     private LogService logger;
 
-    @Autowired
-    private QueueRepository queueRepository;
-
-
     @Value("${bot.operations.timeout.seconds}")
     private int operationTimeout;
-    @Value("${bot.screenshoots.path}")
-    private String screenshootPath;
+
     @Value("${spring.profiles.active}")
     private String envProfile;
 
-    //@Async decomentar esto para que sea asincrono. modo secuencial activado por servidor low-elo
-    @Scheduled(fixedRate = 3000, initialDelay = 5000)
-    public void processQueue()  {
-      // EXECUTED EVERY 3S W/ INITIAL DELAY 5S
+
+    @Autowired
+    Check checkBot;
+
+    //correr a las 9
+    @Scheduled(cron = "0 0 9 * * MON-FRI")
+    public void checkIn()  {
+        this.checkBot.doLogin("check_in");
     }
 
-    @PostConstruct
-    public void prepareQueue() {
-        // EXECURTED AFTER APP LOADS
+    @Scheduled(cron = "0 30 6 * * MON-FRI")
+    public void checkOut()  {
+        this.checkBot.doLogin("check_out");
+    }
+
+    @Scheduled(cron = "0 0 15 * * FRI")
+    public void checkOutFriday()  {
+        this.checkBot.doLogin("check_out");
     }
 }

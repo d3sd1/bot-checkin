@@ -1,1 +1,0 @@
-INSERT INTO contract_time_type (id,time_type) VALUES (1,"TIEMPO_COMPLETO"),(2,"TIEMPO_PARCIAL"),(3,"FIJO_DISCONTINUO")

@@ -1,1 +1,0 @@
-INSERT INTO contract_coefficient (coefficient,description) VALUES (500,"4 Horas"),(625,"5 Horas"),(750,"6 Horas"),(402,"7+ Horas (Tiempo completo)");

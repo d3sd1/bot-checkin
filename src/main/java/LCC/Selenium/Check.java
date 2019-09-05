@@ -7,15 +7,23 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.concurrent.TimeUnit;
 
-public class BaseBot {
+@Service
+public class Check {
 
-    protected LogService logger;
+    @Autowired
+    private LogService logger;
     private WebDriver driver;
 
-    public boolean configure() {
+
+    @PostConstruct
+    public void configure() {
         this.logger.info("Configure SELENIUM");
         /*
         Check if there is a driver available. If not, just wait.
@@ -45,7 +53,7 @@ public class BaseBot {
         FirefoxProfile profile = new FirefoxProfile();
         profile.setAcceptUntrustedCertificates(true);
         opts.setProfile(profile);
-        // opts.setHeadless(!this.isDev); WETHER SET (OR NOT) headless mode (recommended yes on PROD, not on DEV
+        opts.setHeadless(true);
         try {
             this.driver = new FirefoxDriver(opts);
             driver.manage().window().setPosition(new Point(0, 0));
@@ -56,20 +64,14 @@ public class BaseBot {
                     && !e.getMessage().contains("Socket timeout reading Marionette") && !e.getMessage().contains("Socket timeout reading Marionette")) {
                 this.logger.error("Firefox not installed. Please install it before using bot: Except: " + e.getMessage());
             }
-            return false;
         }
-        return true;
     }
 
-    public LogService getLogger() {
-        return logger;
-    }
-
-
-    protected void destroy() {
+    @PreDestroy
+    private void destroy() {
         if (this.driver != null) {
-            this.endSession();
-            //this.driver.quit(); remove due to queue rflection error
+            this.driver.close();
+            this.driver.quit();
         }
     }
 
@@ -84,9 +86,52 @@ public class BaseBot {
         wait.until(pageLoadCondition);
     }
 
-    private void endSession() {
-        this.driver.close();
-        this.driver.quit();
+    public void doLogin(String type) {
+        driver.get("http://10.1.12.21/WEB_LCC/");
+
+        driver.findElement(By.id("name")).sendKeys("AG00631981@techmahindra.com");
+        driver.findElement(By.id("text_password_login")).sendKeys("Scorpions3");
+        driver.findElement(By.name("button_login")).click();
+        if(type.equalsIgnoreCase("check_in")) {
+            this.doCheckIn();
+        }
+        else {
+            this.doCheckOut();
+        }
+    }
+
+    public void doCheckIn() {
+        driver.findElement(By.cssSelector("#botones_fichas > button:nth-child(1)")).click();
+        try {
+            Thread.sleep(3000);
+            driver.findElement(By.cssSelector("button.confirm")).click();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(3000);
+            driver.findElement(By.cssSelector("button.confirm")).click();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void doCheckOut() {
+        driver.findElement(By.cssSelector("#botones_fichas > button:nth-child(2)")).click();
+        try {
+            Thread.sleep(3000);
+            driver.findElement(By.cssSelector("button.confirm")).click();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(3000);
+            driver.findElement(By.cssSelector("button.confirm")).click();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }
